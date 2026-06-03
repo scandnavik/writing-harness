@@ -1,0 +1,21 @@
+{
+  "_comment": "How to wire the writing-harness hooks into Claude Code. Merge the `hooks` block into your ~/.claude/settings.json (user-level) or .claude/settings.json (project-level). Adjust the python path if your install location differs. On Windows use `python`, on macOS/Linux you may need `python3`.",
+
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python ~/.claude/skills/writing-harness/hooks/writing-harness-gate.py"
+          },
+          {
+            "type": "command",
+            "command": "python ~/.claude/skills/writing-harness/hooks/output-tier-gate.py"
+          }
+        ]
+      }
+    ]
+  }
+}
