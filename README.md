@@ -73,7 +73,7 @@ python scripts/verbosity-check.py "你的筆記/**/*.md" --format=markdown
 
 ## 客製到你的語境
 
-- **換語言／地區**：`taiwan-writing-glossary.md` 的 §2 對照表整段換成你那邊的判準（簡中、港繁、純學術書面都行），三站方法論不動。
+- **換語言／地區**：`taiwan-writing-glossary.md` 的 §2 對照表整段換成你那邊的判準（簡中、港繁、純學術書面都行），三站方法論不動。完整 worked example 見 [`examples/glossary-zh-cn.example.md`](examples/glossary-zh-cn.example.md)（把規則分成「通用保留／需翻轉／需調整」三類，附可直接貼的腳本常數）。
 - **改機械規則**：規則都集中在 `scripts/taiwan-style-check.py` 頂部的常數區（陸用詞、禁用句型、雜訊框架詞），加減一行就改了行為。
 - **你自己的口吻**：複製 `examples/content-voice-prompt.template.md`，把 `<填你的>` 換成你的範例。這是 S2 判斷「像不像你」要比對的那把尺。
 
@@ -100,6 +100,10 @@ writing-harness/
 ```bash
 python tests/test_harness.py
 ```
+
+## Contributing
+
+歡迎貢獻規則與其他語境的 glossary。核心信條是「閘只升不降」，詳見 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
 ## License
 
