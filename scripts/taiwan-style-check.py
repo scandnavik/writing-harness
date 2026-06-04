@@ -56,7 +56,7 @@ URGENCY_WORDS = [
     "再不學就來不及",
 ]
 
-# 陸用詞彙 (glossary §2.1)
+# 大陸用語 (glossary §2.1)
 MAINLAND_WORDS = [
     "視頻",
     "在線",
@@ -242,7 +242,7 @@ def main():
         "破折號漏網": check_dash(body),
         "開場推銷詞": check_urgency(body),
         "半形標點漏網（中文上下文）": check_halfwidth_punct(body),
-        "陸用詞彙（glossary §2.1）": check_mainland_words(body),
+        "大陸用語（glossary §2.1）": check_mainland_words(body),
         "API 術語（glossary §3.1）": check_api_terms(body),
         "結論引導／雜訊框架詞（writing-harness S1）": check_conclusion_lead_noise(body),
     }

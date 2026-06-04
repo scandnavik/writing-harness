@@ -39,7 +39,7 @@ Thanks for wanting to improve writing-harness. This project has one design princ
 直接編 `methodology/taiwan-writing-glossary.md`：
 
 - 新詞 → §2.1 表加 row
-- 偏陸動詞 → §2.2 表加 row
+- 偏大陸的動詞 → §2.2 表加 row
 - 句型／結構 → §4 加節
 - 不確定要不要正式收 → 先放檔尾「驗證期」段，觀察一段時間無推翻再升正式條目
 
@@ -60,7 +60,8 @@ python scripts/rewrite-diff.py 你的草稿.md 真人改完的版本.md
 ## 本機開發
 
 ```bash
-python tests/test_harness.py     # 煙霧測試，純 stdlib，零依賴
+python tests/test_harness.py        # 核心檢查器煙霧測試，純 stdlib，零依賴
+python tests/test_integrations.py   # 多 agent 接線（Codex hook / Hermes plugin / 共用核心）
 ```
 
 不引入任何第三方套件。所有腳本必須維持純 stdlib，這樣任何環境、任何 CI 都能直接跑。
@@ -76,6 +77,13 @@ python tests/test_harness.py     # 煙霧測試，純 stdlib，零依賴
 ## PR checklist
 
 - [ ] `python tests/test_harness.py` 全綠
+- [ ] `python tests/test_integrations.py` 全綠（若動到 `integrations/`）
 - [ ] 腳本改動有對應的測試樣本（fixture）＋測試案例（test case）
 - [ ] 腳本與 glossary 同步
 - [ ] 沒有夾帶任何私有資料（真名、客戶、本機路徑）
+
+---
+
+## 加一個 agent integration
+
+要支援新的 agent（讓它「寫完自動提醒三站」），決策邏輯不要重寫——共用 `integrations/harness_core.py`（`harness_reminder` / `tier_reminder` / `collect_candidate_paths`）。新 adapter 只做兩件事：把該 agent 的工具事件轉成檔案路徑、把回傳的提醒字串用該 agent 的管道送出去。可參考 `integrations/codex/`（command hook）與 `integrations/hermes/`（Python plugin）。記得在 `tests/test_integrations.py` 補對應測試。

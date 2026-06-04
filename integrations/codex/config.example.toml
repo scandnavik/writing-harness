@@ -1,0 +1,27 @@
+# writing-harness hooks for OpenAI Codex CLI.
+#
+# Merge this into ~/.codex/config.toml (user-level) or <repo>/.codex/config.toml
+# (project-level). You can also keep hooks in a separate ~/.codex/hooks.json —
+# the same matcher/command shape applies, in JSON.
+#
+# Replace /ABS/PATH/TO/writing-harness with the absolute path where you cloned
+# this repo. Use `python` on Windows, `python3` on macOS/Linux.
+#
+# Codex edits files via the `apply_patch` tool, so we match that. We also match
+# Write|Edit in case your setup exposes those tools. Both hooks are warn-only:
+# they emit a `systemMessage` and never block.
+
+[[hooks.PostToolUse]]
+matcher = "apply_patch|Write|Edit"
+
+[[hooks.PostToolUse.hooks]]
+type = "command"
+command = 'python3 /ABS/PATH/TO/writing-harness/integrations/codex/writing-harness-gate.py'
+timeout = 15
+statusMessage = "writing-harness: 3-station check"
+
+[[hooks.PostToolUse.hooks]]
+type = "command"
+command = 'python3 /ABS/PATH/TO/writing-harness/integrations/codex/output-tier-gate.py'
+timeout = 15
+statusMessage = "writing-harness: L3 evidence check"
