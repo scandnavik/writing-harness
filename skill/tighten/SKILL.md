@@ -8,7 +8,7 @@ description: >
 
 # Tighten
 
-Markdown token 精簡管線。腳本偵測 + LLM 重寫分工，不浪費 token 做 cheap detection。
+Markdown 精簡管線，目的是省 token。分工是這樣：偵測交給腳本（不花 LLM），只有重寫才動用 LLM，避免把便宜的偵測工作浪費在昂貴的模型上。
 
 bloat（填充詞、無用前綴、重複框架、description 回聲）是 AI slop 的另一張臉：不是寫錯，是寫太多、講太繞。這支 skill 把「偵測」交給純 regex（零 LLM），只把「重寫」交給 LLM，最省 token。
 
@@ -55,7 +55,7 @@ python ~/.claude/skills/writing-harness/scripts/verbosity-check.py <paths> --for
 把 markdown report 貼給用戶，附一行摘要：
 
 ```
-共 N 個 findings 散佈於 M 檔。規則熱度：<rule>: <count>, ...
+共 N 處命中、散佈在 M 個檔案。各規則命中次數：<rule>: <count>, ...
 要重寫嗎？(y / n / 指定檔案子集)
 ```
 
