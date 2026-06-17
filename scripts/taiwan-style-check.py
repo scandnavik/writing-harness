@@ -56,22 +56,40 @@ URGENCY_WORDS = [
     "再不學就來不及",
 ]
 
-# 大陸用語 (glossary §2.1)
+# 大陸用語 (glossary §2.1，硬擋)
+# 不收：數據／項目／文件／用戶／平臺 = 風格偏好 (glossary §2.1.3)，純子字串 grep 誤報過高
 MAINLAND_WORDS = [
+    # 媒體 / 社群
     "視頻",
+    "視頻號",
+    "公眾號",
+    # 網路 / 數位
     "在線",
     "網絡",
+    "互聯網",
     "批量",
-    "項目",
-    "數據",
     "軟件",
     "信息",
-    "質量",
+    "質量",  # ⚠️ 物理 mass 語境誤報，glossary §2.1 標例外（人工放行）
     "默認",
     "鏈接",
-    "互聯網",
     "範式轉換",
-    "公眾號",
+    # 科技詞 (glossary §2.1.1)
+    "屏幕",
+    "硬盤",
+    "硬件",
+    "服務器",
+    "登錄",
+    "操作系統",
+    "數碼",
+    "攝像頭",
+    # 商業黑話 (glossary §2.1.2，只擋重黑話)
+    "賦能",
+    "閉環",  # ⚠️ 工程 closed-loop 例外
+    "復盤",
+    "對標",
+    "抓手",
+    "顆粒度",  # ⚠️ 工程 granularity 例外
 ]
 
 # API 術語禁令 (glossary §3.1)
@@ -81,6 +99,16 @@ API_TERMS = [
     "API 呼叫",
     "打 API",
     "API call",
+]
+
+# 對外工程黑話 (glossary §3.3)，僅 --public 模式檢查（對內檔用這些詞合理，不擋）
+# 先窄：只收「對外幾乎不可能有合理用法」的純黑話；游走詞（閘／gate／harness／棘輪／sub-agent）
+# 留 glossary §3.3 表靠 LLM 自審，不進 regex（避免誤殺工程客戶語境）。(pattern, 建議替換)
+PUBLIC_JARGON = [
+    (r"機械可檢", "規則明確 / 電腦抓得到"),
+    (r"固化", "內建 / 定成規矩"),  # ⚠️ 材料固化語境誤報，人工放行
+    (r"false\s+positives?", "誤報"),
+    (r"\bverbatim\b", "原話完整收錄"),
 ]
 
 # 結論引導／雜訊框架詞 (writing-harness S1)
@@ -174,6 +202,15 @@ def check_api_terms(body):
     return hits
 
 
+def check_public_jargon(body):
+    """對外工程黑話（僅 --public）：命中標出 + 建議白話。"""
+    hits = []
+    for pat, repl in PUBLIC_JARGON:
+        for ln, text in find_all_with_line(body, pat, re.IGNORECASE):
+            hits.append((ln, f"{text} → 改「{repl}」"))
+    return hits
+
+
 def check_conclusion_lead_noise(body):
     hits = []
     for pattern in CONCLUSION_LEAD_NOISE:
@@ -222,11 +259,13 @@ def fmt_hits(hits, limit=10):
 
 
 def main():
-    if len(sys.argv) != 2:
-        print("Usage: taiwan-style-check.py <file.md>", file=sys.stderr)
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    public = "--public" in sys.argv  # 對外模式：多跑「對外工程黑話」紅燈檢查
+    if len(args) != 1:
+        print("Usage: taiwan-style-check.py <file.md> [--public]", file=sys.stderr)
         return 2
 
-    path = Path(sys.argv[1])
+    path = Path(args[0])
     if not path.exists():
         print(f"File not found: {path}", file=sys.stderr)
         return 2
@@ -246,6 +285,8 @@ def main():
         "API 術語（glossary §3.1）": check_api_terms(body),
         "結論引導／雜訊框架詞（writing-harness S1）": check_conclusion_lead_noise(body),
     }
+    if public:
+        results["對外工程黑話（--public，glossary §3.3）"] = check_public_jargon(body)
 
     contrast_count, contrast_hits = check_contrast(body)
     any_hit = any(hits for hits in results.values()) or contrast_count > 2
